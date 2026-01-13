@@ -1,15 +1,24 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+type TokenResponse = {
+  access_token: string;
+  token_type?: string;
+};
+
+type ErrorResponse = {
+  detail?: string;
+};
+
 function Login() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [username, setUsername] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   const navigate = useNavigate();
 
-  const validateForm = () => {
+  const validateForm = (): boolean => {
     if (!username || !password) {
       setError("Username and password are required.");
       return false;
@@ -18,7 +27,9 @@ function Login() {
     return true;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
     e.preventDefault();
 
     if (!validateForm()) return;
@@ -40,12 +51,12 @@ function Login() {
       setLoading(false);
 
       if (response.ok) {
-        const data = await response.json();
+        const data: TokenResponse = await response.json();
         localStorage.setItem("access_token", data.access_token);
         navigate("/protected");
       } else {
-        const errorData = await response.json();
-        setError(errorData.detail || "Authentication failed!");
+        const errorData: ErrorResponse = await response.json();
+        setError(errorData.detail ?? "Authentication failed!");
       }
     } catch (err) {
       setLoading(false);
