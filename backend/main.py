@@ -21,7 +21,7 @@ OAuth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/token")
 
 # CORS settings
 origins = [
-    "http://localhost:3000", # React frontend
+    "http://localhost:5173", # React frontend
 ]
 
 app.add_middleware(
