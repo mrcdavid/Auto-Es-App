@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from jose import JWTError, jwt
 from datetime import datetime, timedelta, timezone
 from passlib.context import CryptContext
@@ -58,22 +58,20 @@ ACCESS_TOKEN_EXPIRE_MINUTES=int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 # Pydantic models
 # ----------------------------
 class UserCreate(BaseModel):
+    first_Name: str
+    last_Name: str 
     username: str
     password: str
+    email: EmailStr
+
+    class Config:
+        from_attributes = True
 
 # ----------------------------
 # User helper functions
 # ----------------------------
 def get_user_by_username(db: Session, username: str):
     return db.query(User).filter(User.username == username).first()
-
-def create_user(db: Session, user: UserCreate):
-    hashed_password = pwd_context.hash(user.password)
-    db_user = User(username=user.username, hashed_password=hashed_password)
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return {"message": "User created successfully"}
 
 def authenticate_user(db: Session, username: str, password: str):
     user = db.query(User).filter(User.username == username).first()
@@ -114,8 +112,24 @@ def verify_token(token: str = Depends(OAuth2_scheme)):
 def register(user: UserCreate, db: Session = Depends(get_db)):
     db_user = get_user_by_username(db, user.username)
     if db_user:
-        raise HTTPException(status_code=400, detail="Username already registered")
-    return create_user(db=db, user=user)
+        raise HTTPException(
+            status_code=400, 
+            detail="Username already registered"
+        )
+
+    hashed_password = pwd_context.hash(user.password)
+    db_user = User(
+        first_Name=user.first_Name,    
+        last_Name=user.last_Name,
+        username=user.username, 
+        hashed_password=hashed_password,
+        email=user.email,                         
+        )
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user 
+
 
 @app.post("/api/token")
 def login_for_access_token(
