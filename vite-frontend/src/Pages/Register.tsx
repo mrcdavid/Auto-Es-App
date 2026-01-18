@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect} from 'react';
 import { Eye, EyeOff, CheckCircle, AlertCircle } from 'lucide-react';
-//import { Mail, Lock, User, CheckCircle } from 'lucide-react';
+//import { Mail, Lock, User, } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 
 interface RegisterErrors {
@@ -20,9 +20,26 @@ export default function RegisterPage() {
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [errors, setErrors] = useState<RegisterErrors>({});
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
 
+    useEffect(() => {
+      if (showSuccessModal) {
+        const timer = setTimeout(() => {
+          navigate("/");
+        }, 2000); // matches progress animation
+
+        return () => clearTimeout(timer);
+      }
+    }, [showSuccessModal, navigate]);
+
+
+
+
+
+    
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
@@ -98,6 +115,7 @@ export default function RegisterPage() {
       newErrors.password = 'Password is too weak. Please choose a stronger password';
     }
 
+    setLoading(true);
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
@@ -127,10 +145,11 @@ export default function RegisterPage() {
         return;
       }
 
+      setShowSuccessModal(true);
       const data = await response.json();
-      console.log(data.message);
+      console.log(data);
 
-      navigate("/"); // back to login
+      //navigate("/"); // back to login
 
     } catch (err) {
       setErrors({
@@ -338,7 +357,17 @@ export default function RegisterPage() {
             onClick={handleBackToLogin}
             className="w-full border-2 border-purple-600 text-purple-600 py-3 rounded-lg font-semibold hover:bg-purple-50 transition"
           >
-            Back to Login
+            {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Creating Account...
+                </span>
+              ) : (
+                'Create Account'
+              )}
           </button>
         </div>
 
@@ -347,9 +376,71 @@ export default function RegisterPage() {
           Secure registration powered by AES encryption
         </p>
       </div>
+
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full animate-slideUp">
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+                <CheckCircle className="w-10 h-10 text-green-600" />
+              </div>
+
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Success!
+              </h2>
+
+              <p className="text-gray-600 mb-4">
+                Your account has been created successfully.
+                <br />
+                Redirecting to home page...
+              </p>
+
+              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                <div className="bg-linear-to-r from-blue-500 to-purple-600 h-2 animate-progress" />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      <style>{`
+        @keyframes slideUp {
+          from {
+            transform: translateY(20px);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+
+        @keyframes progress {
+          from {
+            width: 0%;
+          }
+          to {
+            width: 100%;
+          }
+        }
+
+        .animate-slideUp {
+          animation: slideUp 0.3s ease-out;
+        }
+
+        .animate-progress {
+          animation: progress 2s ease-in-out forwards;
+        }
+      `}</style>
     </div>
   );
 }
+
+
+
+
+
+
+
 
 // import { useState } from 'react';
 // import { Eye, EyeOff, Mail, Lock, User, CheckCircle2, AlertCircle } from 'lucide-react';
