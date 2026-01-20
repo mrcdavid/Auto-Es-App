@@ -67,6 +67,15 @@ class UserCreate(BaseModel):
     class Config:
         from_attributes = True
 
+class UserResponse(BaseModel):
+    first_Name: str
+    last_Name: str
+    username: str
+    email: EmailStr
+
+    class Config:
+        from_attributes = True
+
 # ----------------------------
 # User helper functions
 # ----------------------------
@@ -95,6 +104,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 def verify_token(token: str = Depends(OAuth2_scheme)):
+    
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
@@ -153,3 +163,37 @@ def login_for_access_token(
 @app.get("/verify-token")
 async def verify_user_token(payload: dict = Depends(verify_token)):
     return {"message": "Token is valid", "user": payload.get("sub")}
+
+
+def get_current_user(
+    token: str = Depends(OAuth2_scheme),
+    db: Session = Depends(get_db),
+):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str | None = payload.get("sub")
+
+        if not username:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token",
+            )
+
+        user = db.query(User).filter(User.username == username).first()
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found",
+            )
+
+        return user
+
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token is invalid or expired",
+        )
+
+@app.get("/users/me", response_model=UserResponse)
+def read_users_me(current_user: User = Depends(get_current_user)):
+    return current_user
