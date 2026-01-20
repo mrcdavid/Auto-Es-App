@@ -61,7 +61,7 @@ function Login() {
       if (response.ok) {
         const data: TokenResponse = await response.json();
         localStorage.setItem("access_token", data.access_token);
-        navigate("/protected");
+        navigate("/dashboard");
       } else {
         const errorData: ErrorResponse = await response.json();
         setShowError(true)
