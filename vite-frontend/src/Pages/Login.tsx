@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AlertCircle } from 'lucide-react';
 
@@ -20,6 +20,14 @@ function Login() {
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      // Optional: verify token validity via API
+      navigate("/dashboard"); // redirect to dashboard
+    }
+  }, [navigate]);
+
   const validateForm = (): boolean => {
     if (!username || !password || username.length < 3) {
       setError("Username and password are required.");
@@ -28,6 +36,8 @@ function Login() {
     setError("");
     return true;
   };
+
+
 
   const handleForgotPassword = () => {
     console.log('Forgot password clicked');
