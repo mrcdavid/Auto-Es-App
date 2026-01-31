@@ -82,6 +82,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100">
+
       {/* Header with Logout Button */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
@@ -92,7 +93,7 @@ const Dashboard = () => {
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
+            </svg>,
             <span className="hidden sm:inline">Logout</span>
           </button>
         </div>
@@ -103,7 +104,7 @@ const Dashboard = () => {
         {/* Welcome Section */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome back, {user?.first_Name}! 👋
+            Welcome back, {user?.first_Name}!
           </h2>
           <p className="text-gray-600">Here's your profile information</p>
         </div>
