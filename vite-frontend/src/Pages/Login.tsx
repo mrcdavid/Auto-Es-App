@@ -1,250 +1,195 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AlertCircle } from 'lucide-react';
 
 type TokenResponse = {
-  access_token: string;
-  token_type?: string;
+	access_token: string;
+	token_type?: string;
 };
 
 type ErrorResponse = {
-  detail?: string;
+	detail?: string;
 };
 
 function Login() {
-  const [username, setUsername] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [error, setError] = useState<string>("");
-  const [showError, setShowError] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
+	const [username, setUsername] = useState<string>("");
+	const [password, setPassword] = useState<string>("");
+	const [error, setError] = useState<string>("");
+	const [showError, setShowError] = useState<boolean>(false);
+	const [loading, setLoading] = useState<boolean>(false);
 
-  const navigate = useNavigate();
+	const navigate = useNavigate();
 
-  useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (token) {
-      // Optional: verify token validity via API
-      navigate("/dashboard"); // redirect to dashboard
-    }
-  }, [navigate]);
-
-  const validateForm = (): boolean => {
-    if (!username || !password || username.length < 3) {
-      setError("Username and password are required.");
-      return false;
-    }
-    setError("");
-    return true;
-  };
+	const validateForm = (): boolean => {
+		if (!username || !password || username.length < 3) {
+			setError("Username and password are required.");
+			return false;
+		}
+		setError("");
+		return true;
+	};
 
 
 
-  const handleForgotPassword = () => {
-    console.log('Forgot password clicked');
-  };
+	const handleForgotPassword = () => {
+		console.log('Forgot password clicked');
+	};
 
 
-  const handleRegister = () => {
-    navigate("/register"); // redirects to /register page
-  };
+	const handleRegister = () => {
+		navigate("/register"); // redirects to /register page
+	};
 
-  const handleLogin = async (): Promise<void> => {
+	const handleLogin = async (): Promise<void> => {
 
-    if (!validateForm()) return;
-    setLoading(true);
+		if (!validateForm()) return;
+		setLoading(true);
 
-    const formDetails = new URLSearchParams();
-    formDetails.append("username", username);
-    formDetails.append("password", password);
+		const formDetails = new URLSearchParams();
+		formDetails.append("username", username);
+		formDetails.append("password", password);
 
-    try {
-      const response = await fetch("http://localhost:8000/api/token", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: formDetails.toString(),
-      });
+		try {
+			const response = await fetch("http://localhost:8000/api/token", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/x-www-form-urlencoded",
+				},
+				body: formDetails.toString(),
+			});
 
-      setLoading(false);
+			setLoading(false);
 
-      if (response.ok) {
-        const data: TokenResponse = await response.json();
-        localStorage.setItem("access_token", data.access_token);
-        navigate("/dashboard");
-      } else {
-        const errorData: ErrorResponse = await response.json();
-        setShowError(true)
-        setError(errorData.detail ?? "Authentication failed!");
-      }
-    } catch (err) {
-      setLoading(false);
-      setShowError(true)
-      setError("An error occurred. Please try again.");
+			if (response.ok) {
+				const data: TokenResponse = await response.json();
+				localStorage.setItem("access_token", data.access_token);
+				navigate("/dashboard");
+			} else {
+				const errorData: ErrorResponse = await response.json();
+				setShowError(true)
+				setError(errorData.detail ?? "Authentication failed!");
+			}
+		} catch (err) {
+			setLoading(false);
+			setShowError(true)
+			setError("An error occurred. Please try again.");
 
-    }
-  };
+		}
+	};
+	return (
+		<div className="min-h-screen bg-linear-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
+			<div className="w-full max-w-md">
+				{/* Login Card */}
+				<div className="bg-white rounded-2xl shadow-2xl p-8">
+					{/* Logo/Title */}
+					<div className="text-center mb-8">
+						<h1 className="text-3xl font-bold bg-linear-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+							AES-APP
+						</h1>
+						<p className="text-gray-500 mt-2">Welcome back! Please login to your account.</p>
+					</div>
 
-//  return (
-//     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-//       <div className="w-full max-w-md bg-white rounded-lg shadow-md p-8 sm:p-10">
-//         <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
-//           Login
-//         </h2>
+					{/* Error Message */}
+					{showError && error && (
+						<div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
+							<AlertCircle className="text-red-500 shrink-0 mt-0.5" size={20} />
+							<p className="text-red-700 text-sm">Wrong username or password. Try again.</p>
+						</div>
+					)}
 
-//         <form onSubmit={handleSubmit} className="space-y-4">
-//           <div>
-//             <label className="block text-gray-700 mb-1">Username</label>
-//             <input
-//               type="text"
-//               autoComplete="username"
-//               value={username}
-//               onChange={(e) => setUsername(e.target.value)}
-//               className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-//             />
-//           </div>
+					{/* Login Form */}
+					<div className="space-y-6">
+						{/* Username Input */}
+						<div>
+							<label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+								Username
+							</label>
+							<input
+								id="username"
+								type="text"
+								value={username}
+								onChange={(e) => {
+									setUsername(e.target.value)
+									setShowError(false)
+									setError('')
+								}}
+								onKeyUp={(e) => e.key === 'Enter' && handleLogin()}
+								className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+								placeholder="Enter your username"
+							/>
+						</div>
 
-//           <div>
-//             <label className="block text-gray-700 mb-1">Password</label>
-//             <input
-//               type="password"
-//               autoComplete="new-password"
-//               value={password}
-//               onChange={(e) => setPassword(e.target.value)}
-//               className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-//             />
-//           </div>
+						{/* Password Input */}
+						<div>
+							<label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+								Password
+							</label>
+							<input
+								id="password"
+								type="password"
+								autoComplete="new-password"
+								value={password}
+								onChange={(e) => {
+									setPassword(e.target.value)
+									setShowError(false)
+									setError('')
+								}}
+								onKeyUp={(e) => e.key === 'Enter' && handleLogin()}
+								className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+								placeholder="Enter your password"
+							/>
+						</div>
 
-//           <button
-//             type="submit"
-//             disabled={loading}
-//             className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md transition-colors disabled:opacity-50"
-//           >
-//             {loading ? "Logging in..." : "Login"}
-//           </button>
-//         </form>
+						{/* Forgot Password Link */}
+						<div className="flex justify-end">
+							<button
+								type="button"
+								onClick={handleForgotPassword}
+								className="text-sm text-purple-600 hover:text-purple-700 font-medium"
+							>
+								Forgot password?
+							</button>
+						</div>
 
-//         {error && (
-//           <p className="mt-4 text-red-500 text-center font-medium">{error}</p>
-//         )}
-//       </div>
-//     </div>
-//   );
+						{/* Login Button */}
+						<button
+							type="button"
+							disabled={loading}
+							onClick={handleLogin}
+							className="w-full bg-linear-to-r from-purple-600 to-blue-600 text-white py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition shadow-lg hover:shadow-xl"
+						>
+							{loading ? "Logging in..." : "Login"}
+						</button>
+					</div>
 
-  return (
-    <div className="min-h-screen bg-linear-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Login Card */}
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
-          {/* Logo/Title */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold bg-linear-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-              AES-APP
-            </h1>
-            <p className="text-gray-500 mt-2">Welcome back! Please login to your account.</p>
-          </div>
+					{/* Divider */}
+					<div className="relative my-8">
+						<div className="absolute inset-0 flex items-center">
+							<div className="w-full border-t border-gray-300"></div>
+						</div>
+						<div className="relative flex justify-center text-sm">
+							<span className="px-4 bg-white text-gray-500">Or</span>
+						</div>
+					</div>
 
-          {/* Error Message */}
-          {showError && error && (
-            <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
-              <AlertCircle className="text-red-500 shrink-0 mt-0.5" size={20} />
-              <p className="text-red-700 text-sm">Wrong username or password. Try again.</p>
-            </div>
-          )}
+					{/* Register Button */}
+					<button
+						type="button"
+						onClick={handleRegister}
+						className="w-full border-2 border-purple-600 text-purple-600 py-3 rounded-lg font-semibold hover:bg-purple-50 transition"
+					>
+						Create Account
+					</button>
+				</div>
 
-          {/* Login Form */}
-          <div className="space-y-6">
-            {/* Username Input */}
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
-                Username
-              </label>
-              <input
-                id="username"
-                type="text"
-                value={username}
-                onChange={(e) => {
-                  setUsername(e.target.value)
-                  setShowError(false)    
-                  setError('')  
-                }}
-                onKeyUp={(e) => e.key === 'Enter' && handleLogin()}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
-                placeholder="Enter your username"
-              />
-            </div>
+				{/* Footer Text */}
+				<p className="text-center text-white text-sm mt-6 opacity-80">
+					Secure login powered by AES encryption
+				</p>
+			</div>
+		</div>
+	);
 
-            {/* Password Input */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                autoComplete="new-password"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value)
-                  setShowError(false)    
-                  setError('')  
-                }}
-                onKeyUp={(e) => e.key === 'Enter' && handleLogin()}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
-                placeholder="Enter your password"
-              />
-            </div>
-
-            {/* Forgot Password Link */}
-            <div className="flex justify-end">
-              <button
-                type="button"
-                onClick={handleForgotPassword}
-                className="text-sm text-purple-600 hover:text-purple-700 font-medium"
-              >
-                Forgot password?
-              </button>
-            </div>
-
-            {/* Login Button */}
-            <button
-              type="button"
-              disabled={loading}
-              onClick={handleLogin}
-              className="w-full bg-linear-to-r from-purple-600 to-blue-600 text-white py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition shadow-lg hover:shadow-xl"
-            >
-              {loading ? "Logging in..." : "Login"}
-            </button>
-          </div>
-
-          {/* Divider */}
-          <div className="relative my-8">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-gray-500">Or</span>
-            </div>
-          </div>
-
-          {/* Register Button */}
-          <button
-            type="button"
-            onClick={handleRegister}
-            className="w-full border-2 border-purple-600 text-purple-600 py-3 rounded-lg font-semibold hover:bg-purple-50 transition"
-          >
-            Create Account
-          </button>
-        </div>
-
-        {/* Footer Text */}
-        <p className="text-center text-white text-sm mt-6 opacity-80">
-          Secure login powered by AES encryption
-        </p>
-      </div>
-    </div>
-  );
-  
 }
 
 export default Login;
