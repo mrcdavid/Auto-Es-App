@@ -4,6 +4,8 @@ import RegisterPage from "./Pages/Register";
 import ModernSidebar from "./Pages/ModernSideBar";
 import ProtectedRoute from "./helpers/ProtectedRoute";
 import PublicRoute from "./helpers/PublicRoute";
+import ForgotPassword from "./Pages/ForgotPassword";
+import ResetPassword from './Pages/ResetPassword';
 import "./index.css";
 
 function App() {
@@ -27,6 +29,22 @@ function App() {
 					}
 				/>
 				<Route
+					path="/reset-password"
+					element={
+						<PublicRoute>
+							<ResetPassword />
+						</PublicRoute>
+					}
+				/>
+				<Route
+					path="/forgot-password"
+					element={
+						<PublicRoute>
+							<ForgotPassword />
+						</PublicRoute>
+					}
+				/>
+				<Route
 					path="/dashboard"
 					element={
 						<ProtectedRoute>
@@ -34,6 +52,7 @@ function App() {
 						</ProtectedRoute>
 					}
 				/>
+
 			</Routes>
 		</Router>
 	);
