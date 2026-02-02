@@ -32,7 +32,7 @@ function Login() {
 
 
 	const handleForgotPassword = () => {
-		console.log('Forgot password clicked');
+		navigate("/forgot-password"); // Navigate to forgot password page
 	};
 
 
@@ -127,7 +127,7 @@ function Login() {
 							<input
 								id="password"
 								type="password"
-								autoComplete="new-password"
+								autoComplete="current-password"
 								value={password}
 								onChange={(e) => {
 									setPassword(e.target.value)
@@ -145,7 +145,7 @@ function Login() {
 							<button
 								type="button"
 								onClick={handleForgotPassword}
-								className="text-sm text-purple-600 hover:text-purple-700 font-medium"
+								className="text-sm text-purple-600 hover:text-purple-700 font-medium px-2 py-1 rounded-md hover:bg-purple-50 transition-all duration-200"
 							>
 								Forgot password?
 							</button>
