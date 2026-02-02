@@ -16,7 +16,8 @@ function Login() {
 	const [password, setPassword] = useState<string>("");
 	const [error, setError] = useState<string>("");
 	const [showError, setShowError] = useState<boolean>(false);
-	const [loading, setLoading] = useState<boolean>(false);
+	const [loginLoading, setLoginLoading] = useState<boolean>(false);
+	const [registerLoading, setRegisterLoading] = useState<boolean>(false);
 
 	const navigate = useNavigate();
 
@@ -37,13 +38,24 @@ function Login() {
 
 
 	const handleRegister = () => {
-		navigate("/register"); // redirects to /register page
+		setRegisterLoading(true);
+
+		setTimeout(() => {
+			setRegisterLoading(false);
+			navigate("/register");
+		}, 1200);
 	};
 
 	const handleLogin = async (): Promise<void> => {
 
+		if (!username.trim() || !password.trim()) {
+			setShowError(true);
+			setError("Username and password are required!");
+			return;
+		}
+
 		if (!validateForm()) return;
-		setLoading(true);
+		setLoginLoading(true);
 
 		const formDetails = new URLSearchParams();
 		formDetails.append("username", username);
@@ -58,7 +70,7 @@ function Login() {
 				body: formDetails.toString(),
 			});
 
-			setLoading(false);
+			setLoginLoading(false);
 
 			if (response.ok) {
 				const data: TokenResponse = await response.json();
@@ -70,7 +82,7 @@ function Login() {
 				setError(errorData.detail ?? "Authentication failed!");
 			}
 		} catch (err) {
-			setLoading(false);
+			setLoginLoading(false);
 			setShowError(true)
 			setError("An error occurred. Please try again.");
 
@@ -154,11 +166,12 @@ function Login() {
 						{/* Login Button */}
 						<button
 							type="button"
-							disabled={loading}
 							onClick={handleLogin}
-							className="w-full bg-linear-to-r from-purple-600 to-blue-600 text-white py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition shadow-lg hover:shadow-xl"
+							disabled={loginLoading}
+							className={`w-full bg-linear-to-r from-purple-600 to-blue-600 text-white py-3 rounded-lg font-semibold transition shadow-lg
+   							${loginLoading ? "opacity-70 cursor-not-allowed" : "hover:from-purple-700 hover:to-blue-700 hover:shadow-xl"}`}
 						>
-							{loading ? "Logging in..." : "Login"}
+							{loginLoading ? "Logging in..." : "Login"}
 						</button>
 					</div>
 
@@ -176,9 +189,11 @@ function Login() {
 					<button
 						type="button"
 						onClick={handleRegister}
-						className="w-full border-2 border-purple-600 text-purple-600 py-3 rounded-lg font-semibold hover:bg-purple-50 transition"
+						disabled={registerLoading}
+						className={`w-full border-2 border-purple-600 text-purple-600 py-3 rounded-lg font-semibold transition
+    					${registerLoading ? "opacity-60 cursor-not-allowed" : "hover:bg-purple-50"}`}
 					>
-						Create Account
+						{registerLoading? "Loading..." : "Create Account"}
 					</button>
 				</div>
 
