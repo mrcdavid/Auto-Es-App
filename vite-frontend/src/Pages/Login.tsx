@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AlertCircle } from 'lucide-react';
+import LoginSuccessModal from "../components/LoginSuccessModal";
 
 type TokenResponse = {
 	access_token: string;
@@ -18,6 +19,7 @@ function Login() {
 	const [showError, setShowError] = useState<boolean>(false);
 	const [loginLoading, setLoginLoading] = useState<boolean>(false);
 	const [registerLoading, setRegisterLoading] = useState<boolean>(false);
+	const [showLoginSuccess, setShowLoginSuccess] = useState(false);
 
 	const navigate = useNavigate();
 
@@ -75,7 +77,13 @@ function Login() {
 			if (response.ok) {
 				const data: TokenResponse = await response.json();
 				localStorage.setItem("access_token", data.access_token);
-				navigate("/dashboard");
+
+				setShowLoginSuccess(true);
+
+				setTimeout(() => {
+					navigate("/dashboard");
+				}, 1200);
+
 			} else {
 				const errorData: ErrorResponse = await response.json();
 				setShowError(true)
@@ -168,11 +176,26 @@ function Login() {
 							type="button"
 							onClick={handleLogin}
 							disabled={loginLoading}
-							className={`w-full bg-linear-to-r from-purple-600 to-blue-600 text-white py-3 rounded-lg font-semibold transition shadow-lg
-   							${loginLoading ? "opacity-70 cursor-not-allowed" : "hover:from-purple-700 hover:to-blue-700 hover:shadow-xl"}`}
+							className="w-full bg-linear-to-r from-purple-600 to-blue-600 text-white py-3 rounded-lg font-semibold transition shadow-lg hover:shadow-xl hover:from-purple-700 hover:to-blue-700 disabled:opacity-70 disabled:cursor-not-allowed"
 						>
-							{loginLoading ? "Logging in..." : "Login"}
+							{loginLoading ? (
+								<span className="flex items-center justify-center gap-2">
+									<svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+										<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"
+										/>
+										<path
+											className="opacity-75"
+											fill="currentColor"
+											d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+										/>
+									</svg>
+									Logging in...
+								</span>
+							) : (
+								"Login"
+							)}
 						</button>
+
 					</div>
 
 					{/* Divider */}
@@ -190,11 +213,26 @@ function Login() {
 						type="button"
 						onClick={handleRegister}
 						disabled={registerLoading}
-						className={`w-full border-2 border-purple-600 text-purple-600 py-3 rounded-lg font-semibold transition
-    					${registerLoading ? "opacity-60 cursor-not-allowed" : "hover:bg-purple-50"}`}
+						className="w-full border-2 border-purple-600 text-purple-600 py-3 rounded-lg font-semibold hover:bg-purple-50 transition disabled:opacity-70 disabled:cursor-not-allowed"
 					>
-						{registerLoading? "Loading..." : "Create Account"}
+						{registerLoading ? (
+							<span className="flex items-center justify-center gap-2">
+								<svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+									<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"
+									/>
+									<path
+										className="opacity-75"
+										fill="currentColor"
+										d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+									/>
+								</svg>
+								Creating Account...
+							</span>
+						) : (
+							"Create Account"
+						)}
 					</button>
+
 				</div>
 
 				{/* Footer Text */}
@@ -202,6 +240,11 @@ function Login() {
 					Secure login powered by AES encryption
 				</p>
 			</div>
+					{/* ✅ Login Success Modal (add here) */}
+		<LoginSuccessModal
+			show={showLoginSuccess}
+			username={username}
+		/>
 		</div>
 	);
 
