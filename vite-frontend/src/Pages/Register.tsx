@@ -183,7 +183,13 @@ export default function RegisterPage() {
 
 
     const handleBackToLogin = () => {
-        navigate("/"); // redirects to /login page
+        setLoading(true);
+
+        setTimeout(() => {
+            setLoading(false);
+            navigate("/");
+        }, 1200);
+        // redirects to /login page
     };
 
 
