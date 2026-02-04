@@ -1,9 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 export default function ForgotPassword() {
 	const [email, setEmail] = useState("");
 	const [msg, setMsg] = useState("");
 	const [loading, setLoading] = useState(false);
+	const navigate = useNavigate();
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -21,12 +24,26 @@ export default function ForgotPassword() {
 		setLoading(false);
 	};
 
+	const handleBackToLogin = () => {
+		navigate("/");
+	};
+
 	return (
 		<div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
 			<form
 				onSubmit={handleSubmit}
 				className="bg-white w-full max-w-md p-6 rounded-2xl shadow"
 			>
+				{/* Back Button */}
+				<button
+					type="button"
+					onClick={handleBackToLogin}
+					className="mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors group"
+				>
+					<ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+					<span className="text-sm font-medium">Back to Login</span>
+				</button>
+
 				<h1 className="text-2xl font-bold mb-2">Forgot Password</h1>
 				<p className="text-gray-600 mb-6">
 					Enter your email to receive a reset link + 6-digit code.
