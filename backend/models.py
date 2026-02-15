@@ -53,11 +53,11 @@ class PasswordResetRequest(Base):
 class Order(Base):
     __tablename__ = "orders"
 
-    id = Column(Integer, primary_key=True, index=True)  # ORDER ID (auto-generated)
+    id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    customer_name = Column(String, nullable=False)     # CLIENT NAME
-    customer_id = Column(String, nullable=False)       # CLIENT ID
-    order_type = Column(String, nullable=False)        # SLIDING WINDOW, SCREENDOOR
+    customer_id = Column(Integer, ForeignKey("customers.id", ondelete="RESTRICT"), nullable=False)
+
+    order_type = Column(String, nullable=False)
     order_place = Column(String, nullable=False)
     quotation_total_price = Column(Float, nullable=False)
 
@@ -68,7 +68,28 @@ class Order(Base):
     )
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    # relationship back to user
+    # relationships
     user = relationship("User", back_populates="orders")
+    customer = relationship("Customer", back_populates="orders")
+
+
+
+class Customer(Base):
+    __tablename__ = "customers"
+
+    id = Column(Integer, primary_key=True, index=True)
+    customer_code = Column(String, unique=True, nullable=False)  # your CLIENT ID
+    name = Column(String, nullable=False)
+    contact_number = Column(String, nullable=True)
+    address = Column(String, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    # relationships
+    orders = relationship(
+        "Order",
+        back_populates="customer",
+        cascade="all, delete"
+    )
+
 
 Base.metadata.create_all(bind=engine)
